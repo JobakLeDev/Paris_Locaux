@@ -4,54 +4,74 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paris sur les futurs locaux</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{ --bg:#f6f4ef; --card:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e6e2d9;
-    --accent:#d9572b; --accent-soft:#fbe7de; --win:#1f8a5b; --win-soft:#def3e8; }
+  /* Palette relevée sur greenflex.com */
+  :root{
+    --teal:#03485E; --mint:#EEFEF3; --green:#00A880; --neon:#59F99A; --sky:#93E0F8; --orange:#E57C00; --slate:#526E7A;
+    --bg:var(--mint); --card:#fff; --ink:var(--teal); --muted:var(--slate); --line:#d3ece0;
+    --accent:var(--green); --accent-soft:#dcf6ea; --win:var(--orange); --win-soft:#fdeed9;
+  }
   @media (prefers-color-scheme: dark){
-    :root{ --bg:#17171a; --card:#222226; --ink:#f1f1f3; --muted:#a0a0a8; --line:#34343a;
-      --accent:#f07a4f; --accent-soft:#3a2720; --win:#4cc38a; --win-soft:#1d3329; } }
+    :root{ --bg:#022b38; --card:#03485E; --ink:var(--mint); --muted:#a9c6cf; --line:#0d5f78;
+      --accent:var(--neon); --accent-soft:#0b5a52; --win-soft:#4a3415; }
+    button{color:var(--teal)!important}
+    button.ghost,.croissants button,.x{color:var(--accent)!important}
+  }
   *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
-  .wrap{max-width:860px;margin:0 auto;padding:28px 18px 60px}
-  h1{font-size:28px;margin:0 0 4px;letter-spacing:-.02em}
-  .sub{color:var(--muted);margin:0 0 22px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:18px}
-  h2{font-size:16px;margin:0 0 12px}
-  label{font-size:13px;color:var(--muted);display:block;margin:10px 0 4px}
-  select,input[type=text]{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:inherit}
+  body{margin:0;font-family:Outfit,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+  .hero{background:var(--teal);color:var(--mint);padding:44px 18px 70px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-80px;top:-80px;width:280px;height:280px;border-radius:50%;background:var(--green);opacity:.35}
+  .hero::before{content:"";position:absolute;right:120px;bottom:-110px;width:200px;height:200px;border-radius:50%;background:var(--sky);opacity:.18}
+  .hero-in{max-width:860px;margin:0 auto;padding:0 18px;position:relative;z-index:1}
+  .tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);background:var(--neon);padding:4px 10px;border-radius:999px;margin-bottom:14px}
+  h1{font-size:38px;font-weight:700;margin:0 0 8px;letter-spacing:-.02em;line-height:1.1}
+  h1 em{font-style:normal;color:var(--neon)}
+  .sub{color:#cfe7ee;margin:0;font-size:17px;max-width:560px}
+  .wrap{max-width:860px;margin:-40px auto 0;padding:0 18px 60px;position:relative;z-index:2}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px;margin-bottom:18px;box-shadow:0 6px 24px rgba(3,72,94,.07)}
+  h2{font-size:19px;font-weight:700;margin:0 0 14px}
+  label{font-size:13px;font-weight:500;color:var(--muted);display:block;margin:12px 0 5px}
+  select,input[type=text]{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit}
+  select:focus,input[type=text]:focus{outline:none;border-color:var(--accent)}
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .row > *{flex:1}
-  button{font:inherit;font-weight:600;border:0;border-radius:9px;padding:9px 16px;cursor:pointer;background:var(--accent);color:#fff}
-  button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
-  button:disabled{opacity:.5;cursor:default}
+  button{font:inherit;font-weight:600;border:0;border-radius:999px;padding:10px 20px;cursor:pointer;background:var(--accent);color:#fff;transition:transform .1s}
+  button:hover:not(:disabled){transform:translateY(-1px)}
+  button.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+  button:disabled{opacity:.45;cursor:default;transform:none}
   .croissants{display:flex;gap:6px;margin-top:4px}
-  .croissants button{background:var(--bg);border:1px solid var(--line);font-size:20px;padding:4px 8px;filter:grayscale(1);opacity:.5}
+  .croissants button{background:var(--bg);border:1.5px solid var(--line);border-radius:12px;font-size:20px;padding:5px 9px;filter:grayscale(1);opacity:.45}
   .croissants button.on{filter:none;opacity:1;border-color:var(--accent);background:var(--accent-soft)}
   .msg{font-size:13px;color:var(--muted);margin-top:10px;min-height:18px}
-  .lieu{padding:12px 0;border-top:1px solid var(--line)}
+  .lieu{padding:14px 0;border-top:1px solid var(--line)}
   .lieu:first-child{border-top:0}
   .lieu-head{display:flex;justify-content:space-between;gap:10px;font-weight:600}
-  .bar{height:10px;border-radius:5px;background:var(--line);margin:7px 0 6px;overflow:hidden}
-  .bar > i{display:block;height:100%;background:var(--accent);border-radius:5px}
+  .bar{height:12px;border-radius:6px;background:var(--accent-soft);margin:8px 0 7px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--neon));border-radius:6px}
   .lieu.win .bar > i{background:var(--win)}
   .lieu.win .lieu-head{color:var(--win)}
   .who{font-size:13px;color:var(--muted)}
-  .who span{display:inline-block;margin-right:10px}
-  .who em{font-style:normal;opacity:.8}
-  .banner{background:var(--win-soft);color:var(--win);border-radius:12px;padding:14px 18px;margin-bottom:18px;font-weight:600}
-  .stats{display:flex;gap:18px;font-size:13px;color:var(--muted);margin-bottom:6px}
-  .stats b{color:var(--ink);font-size:18px;display:block}
-  .admin{border-style:dashed}
+  .who span{display:inline-block;margin-right:12px}
+  .who em{font-style:normal;opacity:.85}
+  .banner{background:var(--win-soft);color:var(--win);border-left:5px solid var(--win);border-radius:14px;padding:16px 20px;margin-bottom:18px;font-weight:600}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+  .stats div{background:var(--bg);border-radius:14px;padding:12px 14px;font-size:13px;color:var(--muted)}
+  .stats b{color:var(--ink);font-size:24px;font-weight:700;display:block}
+  .admin{border-style:dashed;border-color:var(--orange)}
+  .admin h2{color:var(--orange)}
   .empty{color:var(--muted);font-size:14px}
   .x{background:none;color:var(--muted);padding:0 4px;font-weight:400}
   footer{font-size:11px;color:var(--muted);text-align:center;margin-top:30px}
 </style>
 </head>
 <body>
+<header class="hero"><div class="hero-in">
+  <span class="tag">Grand pari GreenFlex</span>
+  <h1>Où seront nos <em>futurs locaux</em>&nbsp;?</h1>
+  <p class="sub">C'est la question que tout le monde se pose.<br>Allez allez, faites vos jeux, y'a pas de perdant !</p>
+</div></header>
 <div class="wrap">
-  <h1>🏢 Où seront nos futurs locaux ?</h1>
-  <p class="sub">Fais ton pronostic, mise tes croissants. Les gagnants se partagent la cagnotte (de viennoiseries).</p>
 
   <div id="banner"></div>
 
