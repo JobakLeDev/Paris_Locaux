@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paris sur les futurs locaux</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#f6f4ef; --card:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e6e2d9;
+    --accent:#d9572b; --accent-soft:#fbe7de; --win:#1f8a5b; --win-soft:#def3e8; }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#17171a; --card:#222226; --ink:#f1f1f3; --muted:#a0a0a8; --line:#34343a;
+      --accent:#f07a4f; --accent-soft:#3a2720; --win:#4cc38a; --win-soft:#1d3329; } }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+  .wrap{max-width:860px;margin:0 auto;padding:28px 18px 60px}
+  h1{font-size:28px;margin:0 0 4px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 22px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:18px}
+  h2{font-size:16px;margin:0 0 12px}
+  label{font-size:13px;color:var(--muted);display:block;margin:10px 0 4px}
+  select,input[type=text]{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:inherit}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .row > *{flex:1}
+  button{font:inherit;font-weight:600;border:0;border-radius:9px;padding:9px 16px;cursor:pointer;background:var(--accent);color:#fff}
+  button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+  button:disabled{opacity:.5;cursor:default}
+  .croissants{display:flex;gap:6px;margin-top:4px}
+  .croissants button{background:var(--bg);border:1px solid var(--line);font-size:20px;padding:4px 8px;filter:grayscale(1);opacity:.5}
+  .croissants button.on{filter:none;opacity:1;border-color:var(--accent);background:var(--accent-soft)}
+  .msg{font-size:13px;color:var(--muted);margin-top:10px;min-height:18px}
+  .lieu{padding:12px 0;border-top:1px solid var(--line)}
+  .lieu:first-child{border-top:0}
+  .lieu-head{display:flex;justify-content:space-between;gap:10px;font-weight:600}
+  .bar{height:10px;border-radius:5px;background:var(--line);margin:7px 0 6px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:var(--accent);border-radius:5px}
+  .lieu.win .bar > i{background:var(--win)}
+  .lieu.win .lieu-head{color:var(--win)}
+  .who{font-size:13px;color:var(--muted)}
+  .who span{display:inline-block;margin-right:10px}
+  .who em{font-style:normal;opacity:.8}
+  .banner{background:var(--win-soft);color:var(--win);border-radius:12px;padding:14px 18px;margin-bottom:18px;font-weight:600}
+  .stats{display:flex;gap:18px;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .stats b{color:var(--ink);font-size:18px;display:block}
+  .admin{border-style:dashed}
+  .empty{color:var(--muted);font-size:14px}
+  .x{background:none;color:var(--muted);padding:0 4px;font-weight:400}
+  footer{font-size:11px;color:var(--muted);text-align:center;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🏢 Où seront nos futurs locaux ?</h1>
+  <p class="sub">Fais ton pronostic, mise tes croissants. Les gagnants se partagent la cagnotte (de viennoiseries).</p>
+
+  <div id="banner"></div>
+
+  <div class="card">
+    <h2>Mon pari</h2>
+    <label for="pseudo">Ton prénom</label>
+    <input type="text" id="pseudo" maxlength="40" placeholder="ex. Gautier">
+    <label for="lieuSel">Le lieu</label>
+    <select id="lieuSel"><option value="">— Choisis un lieu —</option></select>
+    <label>Ou propose un nouveau lieu</label>
+    <div class="row">
+      <input type="text" id="newLieu" maxlength="60" placeholder="ex. La Défense, on reste où on est…">
+      <button class="ghost" id="addLieu" style="flex:0 0 auto">Ajouter</button>
+    </div>
+    <label>Ma mise</label>
+    <div class="croissants" id="mise"></div>
+    <label for="comment">Un mot pour justifier ? (facultatif)</label>
+    <input type="text" id="comment" maxlength="120" placeholder="J'ai vu le DG regarder des annonces…">
+    <div class="row" style="margin-top:14px">
+      <button id="save" style="flex:0 0 auto">Valider mon pari</button>
+      <button class="ghost" id="cancel" style="flex:0 0 auto;display:none">Retirer mon pari</button>
+    </div>
+    <div class="msg" id="msg">Connexion…</div>
+  </div>
+
+  <div class="card">
+    <h2>Le tableau des paris</h2>
+    <div class="stats" id="stats"></div>
+    <div id="board"><p class="empty">Chargement…</p></div>
+  </div>
+
+  <div class="card admin" id="adminCard" style="display:none">
+    <h2>🔒 Organisateur — annoncer le résultat</h2>
+    <div class="row">
+      <select id="winSel"></select>
+      <button id="setWin" style="flex:0 0 auto">Déclarer gagnant</button>
+      <button class="ghost" id="clearWin" style="flex:0 0 auto">Réinitialiser</button>
+    </div>
+  </div>
+
+  <footer>Ton identifiant : <span id="uid">…</span></footer>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ⚙️ À remplacer par la config de ton projet (Console Firebase > Paramètres du projet > Tes applis > Web)
+const firebaseConfig = {
+  apiKey: "XXX",
+  authDomain: "XXX.firebaseapp.com",
+  projectId: "XXX",
+  appId: "XXX"
+};
+// ⚙️ Ton UID (affiché en bas de page à ta première visite) — doit être le même que dans firestore.rules
+const ADMIN_UID = "COLLE_TON_UID_ICI";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let me = null, lieux = [], bets = [], result = null, mise = 1, prefilled = false;
+
+try { $("pseudo").value = localStorage.getItem("pseudo") || ""; } catch(e){}
+
+function renderMise(){
+  const box = $("mise"); box.innerHTML = "";
+  for (let i = 1; i <= 5; i++){
+    const b = document.createElement("button");
+    b.textContent = "🥐"; b.className = i <= mise ? "on" : "";
+    b.onclick = () => { mise = i; renderMise(); };
+    box.appendChild(b);
+  }
+}
+renderMise();
+
+function render(){
+  const lieuName = id => (lieux.find(l => l.id === id) || {}).nom || "Lieu retiré";
+  const sel = $("lieuSel"), cur = sel.value || (bets.find(b => b.id === me) || {}).lieu || "";
+  sel.innerHTML = '<option value="">— Choisis un lieu —</option>' + lieux.map(l => `<option value="${esc(l.id)}">${esc(l.nom)}</option>`).join("");
+  sel.value = lieux.some(l => l.id === cur) ? cur : "";
+  $("winSel").innerHTML = lieux.map(l => `<option value="${esc(l.id)}">${esc(l.nom)}</option>`).join("");
+  if (result) $("winSel").value = result;
+
+  const total = bets.reduce((s, b) => s + (b.mise || 0), 0);
+  const groups = lieux.map(l => {
+    const bs = bets.filter(b => b.lieu === l.id);
+    return { ...l, bets: bs, sum: bs.reduce((s, b) => s + (b.mise || 0), 0) };
+  }).sort((a, b) => (b.id === result) - (a.id === result) || b.sum - a.sum || a.nom.localeCompare(b.nom));
+  $("stats").innerHTML = `<div><b>${bets.length}</b>parieur${bets.length>1?"s":""}</div><div><b>${total} 🥐</b>dans la cagnotte</div><div><b>${lieux.length}</b>lieux en lice</div>`;
+
+  if (result){
+    const win = groups.find(g => g.id === result), wsum = win ? win.sum : 0;
+    const winners = win ? win.bets.map(b => `${esc(b.pseudo)} (+${wsum ? Math.round(total * b.mise / wsum * 10) / 10 : 0} 🥐)`) : [];
+    $("banner").innerHTML = `<div class="banner">🎉 Verdict : <u>${esc(lieuName(result))}</u> ! ${winners.length ? "Gagnants : " + winners.join(", ") : "Personne n'avait vu venir ça 😅"}</div>`;
+  } else $("banner").innerHTML = "";
+
+  const isAdmin = me === ADMIN_UID;
+  if (!lieux.length){ $("board").innerHTML = '<p class="empty">Aucun lieu proposé pour l’instant. Lance le premier !</p>'; }
+  else {
+    const max = Math.max(1, ...groups.map(g => g.sum));
+    $("board").innerHTML = groups.map(g => `
+      <div class="lieu ${g.id === result ? "win" : ""}">
+        <div class="lieu-head"><span>${g.id === result ? "🏆 " : ""}${esc(g.nom)}</span>
+          <span>${g.sum} 🥐 · ${total ? Math.round(g.sum / total * 100) : 0}%
+          ${isAdmin && !g.bets.length ? `<button class="x" data-del="${esc(g.id)}" title="Supprimer">✕</button>` : ""}</span></div>
+        <div class="bar"><i style="width:${g.sum / max * 100}%"></i></div>
+        <div class="who">${g.bets.length ? g.bets.map(b => `<span>${esc(b.pseudo)} · ${"🥐".repeat(b.mise || 1)}${b.commentaire ? ` <em>« ${esc(b.commentaire)} »</em>` : ""}</span>`).join("") : "Personne n’y croit (encore)"}</div>
+      </div>`).join("");
+    document.querySelectorAll("[data-del]").forEach(b => b.onclick = () =>
+      deleteDoc(doc(db, "lieux", b.dataset.del)).catch(() => $("msg").textContent = "Suppression impossible."));
+  }
+
+  const mine = bets.find(b => b.id === me);
+  $("cancel").style.display = mine ? "" : "none";
+  $("save").textContent = mine ? "Modifier mon pari" : "Valider mon pari";
+  const closed = !!result;
+  ["save","addLieu","cancel"].forEach(id => $(id).disabled = closed || !me);
+  if (closed) $("msg").textContent = "Les paris sont clos.";
+}
+
+onAuthStateChanged(auth, user => {
+  if (!user) return;
+  me = user.uid;
+  $("uid").textContent = me;
+  $("msg").textContent = "";
+  if (me === ADMIN_UID) $("adminCard").style.display = "";
+  render();
+});
+signInAnonymously(auth).catch(() => $("msg").textContent = "Connexion à Firebase impossible.");
+
+onSnapshot(query(collection(db, "lieux"), orderBy("ts")), s => {
+  lieux = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(l => l.nom); render();
+});
+onSnapshot(collection(db, "bets"), s => {
+  bets = s.docs.map(d => ({ id: d.id, ...d.data() }));
+  const mine = bets.find(b => b.id === me);
+  if (mine && !prefilled){ prefilled = true; mise = mine.mise || 1; renderMise(); $("comment").value = mine.commentaire || ""; if (!$("pseudo").value) $("pseudo").value = mine.pseudo; }
+  render();
+});
+onSnapshot(doc(db, "config", "resultat"), d => { result = d.exists() ? (d.data().lieu || null) : null; render(); });
+
+$("addLieu").onclick = async () => {
+  const nom = $("newLieu").value.trim();
+  if (!nom) return;
+  if (lieux.some(l => l.nom.toLowerCase() === nom.toLowerCase())){ $("msg").textContent = "Ce lieu existe déjà."; return; }
+  try {
+    const ref = await addDoc(collection(db, "lieux"), { nom, par: me, ts: serverTimestamp() });
+    $("newLieu").value = ""; $("lieuSel").value = ref.id; $("msg").textContent = "Lieu ajouté ✔";
+  } catch(e){ $("msg").textContent = "Impossible d’ajouter ce lieu."; }
+};
+
+$("save").onclick = async () => {
+  const pseudo = $("pseudo").value.trim(), lieu = $("lieuSel").value;
+  if (!pseudo){ $("msg").textContent = "Indique ton prénom."; return; }
+  if (!lieu){ $("msg").textContent = "Choisis (ou ajoute) un lieu d’abord."; return; }
+  try { localStorage.setItem("pseudo", pseudo); } catch(e){}
+  try {
+    await setDoc(doc(db, "bets", me), { pseudo, lieu, mise, commentaire: $("comment").value.trim(), ts: serverTimestamp() });
+    $("msg").textContent = "Pari enregistré 🥐";
+  } catch(e){ $("msg").textContent = "Erreur à l’enregistrement."; }
+};
+
+$("cancel").onclick = () => deleteDoc(doc(db, "bets", me))
+  .then(() => { $("msg").textContent = "Pari retiré."; $("comment").value = ""; })
+  .catch(() => $("msg").textContent = "Erreur, réessaie.");
+
+$("setWin").onclick = () => { const lieu = $("winSel").value; if (lieu) setDoc(doc(db, "config", "resultat"), { lieu }); };
+$("clearWin").onclick = () => deleteDoc(doc(db, "config", "resultat"));
+</script>
+</body>
+</html>
