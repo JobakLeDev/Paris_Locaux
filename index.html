@@ -103,10 +103,12 @@ import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, q
 
 // ⚙️ À remplacer par la config de ton projet (Console Firebase > Paramètres du projet > Tes applis > Web)
 const firebaseConfig = {
-  apiKey: "XXX",
-  authDomain: "XXX.firebaseapp.com",
-  projectId: "XXX",
-  appId: "XXX"
+  apiKey: "AIzaSyBd7Va2clcDnle9GS2yb0SG0C-rujhR-KI",
+  authDomain: "parislocaux.firebaseapp.com",
+  projectId: "parislocaux",
+  storageBucket: "parislocaux.firebasestorage.app",
+  messagingSenderId: "1169415873",
+  appId: "1:1169415873:web:e0df856df25addf9c7be40"
 };
 // ⚙️ Ton UID (affiché en bas de page à ta première visite) — doit être le même que dans firestore.rules
 const ADMIN_UID = "COLLE_TON_UID_ICI";
@@ -185,18 +187,22 @@ onAuthStateChanged(auth, user => {
   if (me === ADMIN_UID) $("adminCard").style.display = "";
   render();
 });
-signInAnonymously(auth).catch(() => $("msg").textContent = "Connexion à Firebase impossible.");
+signInAnonymously(auth).catch(e => {
+  console.error(e);
+  $("msg").textContent = "Connexion à Firebase impossible (" + (e.code || e.message) + ")";
+});
+const dbErr = e => { console.error(e); $("board").innerHTML = `<p class="empty">Lecture Firestore impossible (${esc(e.code || e.message)})</p>`; };
 
 onSnapshot(query(collection(db, "lieux"), orderBy("ts")), s => {
   lieux = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(l => l.nom); render();
-});
+}, dbErr);
 onSnapshot(collection(db, "bets"), s => {
   bets = s.docs.map(d => ({ id: d.id, ...d.data() }));
   const mine = bets.find(b => b.id === me);
   if (mine && !prefilled){ prefilled = true; mise = mine.mise || 1; renderMise(); $("comment").value = mine.commentaire || ""; if (!$("pseudo").value) $("pseudo").value = mine.pseudo; }
   render();
-});
-onSnapshot(doc(db, "config", "resultat"), d => { result = d.exists() ? (d.data().lieu || null) : null; render(); });
+}, dbErr);
+onSnapshot(doc(db, "config", "resultat"), d => { result = d.exists() ? (d.data().lieu || null) : null; render(); }, dbErr);
 
 $("addLieu").onclick = async () => {
   const nom = $("newLieu").value.trim();
